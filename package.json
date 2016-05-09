@@ -1,11 +1,11 @@
 {
-  "name": "zaxiom",
+  "name": "status-updatez",
   "version": "1.0.0",
   "author": "Bonnie Souter <bonnie@zendgame.com>",
   "homepage": "//zendgame.com",
   "repository": {
     "type": "git",
-    "url": "git://github.com/bonbons0220/zaxiom.git"
+    "url": "git://github.com/bonbons0220/status-updatez.git"
   },
   "licenses": [
     {

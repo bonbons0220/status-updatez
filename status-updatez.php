@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Zaxiom Core Plugin
+Plugin Name: Status Updatez Core Plugin
 Plugin URI: http://zendgame.ocm
-Description: The core plugin with Ajax capabilities
-Version: 1.0.1
+Description: Manage content updates shared between WordPress users.
+Version: 1.0.0
 Author: Bonnie Souter
 Author URI: http://zendgame.com
 License: GPLv2
@@ -29,7 +29,7 @@ License: GPLv2
  * Singleton class for setting up the plugin.
  *
  */
-final class Zaxiom_Plugin {
+final class Status_Updatez_Plugin {
 
 	public $dir_path = '';
 	public $dir_uri = '';
@@ -47,7 +47,7 @@ final class Zaxiom_Plugin {
 		static $instance = null;
 
 		if ( is_null( $instance ) ) {
-			$instance = new Zaxiom_Plugin;
+			$instance = new Status_Updatez_Plugin;
 			$instance->setup();
 			$instance->includes();
 			$instance->setup_actions();
@@ -62,24 +62,28 @@ final class Zaxiom_Plugin {
 	private function __construct() {
 		
 		//Add Scripts
-		//add_action( 'wp_enqueue_scripts', array( $this , 'register_zaxiom_script' ) );
+		//add_action( 'wp_enqueue_scripts', array( $this , 'register_status_updatez_script' ) );
 		
 		//Add Shortcodes
-		//add_shortcode( 'ZAXIOM' , array( $this , 'zaxiom_shortcode' ) );	
+		//add_shortcode( 'STATUSUPDATEZ' , array( $this , 'status_updatez_shortcode' ) );	
+		
+		// Add content filter
+		add_filter( 'the_content', array($this , 'show' ) );
+
 	}
 
 	//
-	function register_zaxiom_script() {
+	function register_status_updatez_script() {
 		
 		//Register, but don't enqueue styles
 		//This example requires jquery 
-		//wp_register_script( 'zz-script', $this->js_uri . "zaxiom.js", array( 'jquery' ), '1.0.0', true );
+		//wp_register_script( 'zz-script', $this->js_uri . "status-updatez.js", array( 'jquery' ), '1.0.0', true );
 		
 		//Register but don't enqueue scripts
-		//wp_register_style( 'zz-style', $this->css_uri . "zaxiom.css" );
+		//wp_register_style( 'zz-style', $this->css_uri . "status-updatez.css" );
 	}
 
-	public function zaxiom_shortcode( $atts, $content = null, $tagname = null ) {
+	public function status_updatez_shortcode( $atts, $content = null, $tagname = null ) {
 
 		//Shortcode loads scripts and styles
 		//wp_enqueue_script( 'zz-script' );
@@ -91,31 +95,67 @@ final class Zaxiom_Plugin {
 	}
 
 	/**
+	 * Show the Status Update widget on the front end.
+	 */
+	function show( $content ) {
+	
+		$append = '';
+		
+		// Only show on development websites
+		if ( 'development' !== WP_ENV) return $content;
+
+		if ( function_exists( 'get_cfc_meta' ) ) {
+			
+			// These are the Tracking entries for this page.
+			// Display them in reverse chronological order.
+			$tracking = get_cfc_meta( 'tracking' );
+			$final = count($tracking)-1;
+			
+			foreach( get_cfc_meta( 'tracking' ) as $key => $value ){
+				//get all the fields for this entry
+				$update = '';
+				$fields = array_keys($tracking[$key]);
+				$class='default';
+				foreach ($fields as $thisfield) {
+					$thisresult = the_cfc_field( 'tracking',$thisfield, false, $key , false);
+					$update .= ucfirst($thisfield) . ": " . $thisresult . "<br>";
+					if (count($tracking)-1 == $key) $class = ('status' === $thisfield) ? strtolower(str_replace(" ","-",$thisresult)) : $class ;
+				}
+				$update = '<div class="panel panel-' . $class . '"><div class="panel-body">' . $update . '</div></div>';
+				$append = $update .  $append;
+			}
+		
+		}
+		
+		return $content  . $append;
+	}
+	
+	/**
 	 * Magic method to output a string if trying to use the object as a string.
 	 */
 	public function __toString() {
-		return 'zaxiom';
+		return 'status-updatez';
 	}
 
 	/**
 	 * Magic method to keep the object from being cloned.
 	 */
 	public function __clone() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Sorry, no can do.', 'zaxiom' ), '1.0' );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Sorry, no can do.', 'status-updatez' ), '1.0' );
 	}
 
 	/**
 	 * Magic method to keep the object from being unserialized.
 	 */
 	public function __wakeup() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Sorry, no can do.', 'zaxiom' ), '1.0' );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Sorry, no can do.', 'status-updatez' ), '1.0' );
 	}
 
 	/**
 	 * Magic method to prevent a fatal error when calling a method that doesn't exist.
 	 */
 	public function __call( $method = '', $args = array() ) {
-		_doing_it_wrong( "Zaxiom_Plugin::{$method}", esc_html__( 'Method does not exist.', 'zaxiom' ), '1.0' );
+		_doing_it_wrong( "Status_Updatez_Plugin::{$method}", esc_html__( 'Method does not exist.', 'status-updatez' ), '1.0' );
 		unset( $method, $args );
 		return null;
 	}
@@ -188,12 +228,12 @@ final class Zaxiom_Plugin {
 }
 
 /**
- * Gets the instance of the `Zaxiom_Plugin` class.  This function is useful for quickly grabbing data
+ * Gets the instance of the `Status_Updatez_Plugin` class.  This function is useful for quickly grabbing data
  * used throughout the plugin.
  */
-function zaxiom_plugin() {
-	return Zaxiom_Plugin::get_instance();
+function status_updatez_plugin() {
+	return Status_Updatez_Plugin::get_instance();
 }
 
 // Let's roll!
-zaxiom_plugin();
+status_updatez_plugin();

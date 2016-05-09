@@ -5,9 +5,7 @@ wp-config.php
 
 # These are used in building and minimizing with Grunt
 node_modules
-//vendor/*
-//css/*.css.map
-//manifest.json
+/bower_components/jquery/src
 
 # Compiled source #
 ###################
